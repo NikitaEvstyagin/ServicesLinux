@@ -1,0 +1,15 @@
+$TTL 600
+@   IN  SOA dns1.{{ domain_name }}. nic.{{ domain_name }}. (
+        100     ; Serial
+        3600    ; Refresh
+        1800    ; Retry
+        604800  ; Expire
+        600 )   ; Minimum TTL
+
+    IN  NS  dns1.{{ domain_name }}.
+    IN  NS  dns2.{{ domain_name }}.
+
+dns1    IN  A   {{ ip_address1 }}
+dns2    IN  A   {{ ip_address2 }}
+webs    IN  A   {{ ip_address1 }}
+www     IN  CNAME webs

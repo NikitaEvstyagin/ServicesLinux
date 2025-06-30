@@ -1,0 +1,49 @@
+- name: Установка BIND на все сервера
+  hosts: all
+  become: yes
+  tasks:
+    - name: Установить bind9
+      apt:
+        name: bind9
+        state: present
+        update_cache: yes
+
+- name: Настройка Primary DNS (srv1)
+  hosts: master
+  become: yes
+  tasks:
+    - name: Настроить named.conf.local на master
+      template:
+        src: master_named.conf.local.j2
+        dest: /etc/bind/named.conf.local
+
+    - name: Добавить зону domain.test
+      template:
+        src: db.domain.test.j2
+        dest: /etc/bind/db.domain.test
+
+    - name: Перезапуск bind9 на master
+      service:
+        name: bind9
+        state: restarted
+        enabled: yes
+
+- name: Настройка Secondary DNS и кеша (srv2)
+  hosts: slave
+  become: yes
+  tasks:
+    - name: Настроить named.conf.local на slave
+      template:
+        src: slave_named.conf.local.j2
+        dest: /etc/bind/named.conf.local
+
+    - name: Настроить named.conf.options (кеш + forwarders)
+      template:
+        src: named.conf.options.j2
+        dest: /etc/bind/named.conf.options
+
+    - name: Перезапуск bind9 на slave
+      service:
+        name: bind9
+        state: restarted
+        enabled: yes
